@@ -6,7 +6,7 @@
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
-    <string name="lineageparts_title">LineageOS Settings</string>
+    <string name="lineageparts_title" translatable="false">Extra Settings</string>
 
     <!-- Generic stuff used everywhere -->
     <string name="loading">Loading\u2026</string>
@@ -34,7 +34,7 @@
 
     <!-- Privacy Settings Header item -->
     <string name="privacy_settings_title">Privacy</string>
-    <string name="privacy_settings_category" translatable="false">LineageOS</string>
+    <string name="privacy_settings_category" translatable="false">Android</string>
 
     <!-- Notification channels -->
     <string name="channel_light_settings_id" translatable="false">light_settings</string>
@@ -549,28 +549,6 @@
         <![CDATA[<b>Total contributors:</b> <xliff:g id="total_contributors">%1$s</xliff:g><br/><br/>
                  <b>Total commits:</b> <xliff:g id="total_commits">%2$s</xliff:g><br/><br/>
                  <b>Last update:</b> <xliff:g id="date">%3$s</xliff:g>]]></string>
-
-    <!-- Anonymous Statistics #Lineage -->
-    <!-- About device screen, list item title. Takes the user to the screen about opting in or out of anonymous statistics. -->
-    <string name="anonymous_statistics_title">LineageOS statistics</string>
-    <string name="anonymous_statistics_summary">Help make LineageOS better by opting into anonymous statistics reporting</string>
-    <string name="anonymous_statistics_warning_title">About</string>
-    <string name="anonymous_statistics_warning">Opting into LineageOS Statistics will allow non-personal data to be submitted to the
-        developers of LineageOS to track unique installations across devices. The information submitted includes an unique identifier,
-        which does not compromise your privacy or personal data. The data is submitted during each boot.\n\nFor an example of the data that is submitted, tap on Preview Data.</string>
-    <string name="enable_reporting_title">Enable reporting</string>
-    <string name="preview_data_title">Preview data</string>
-    <string name="view_stats_title">View stats</string>
-    <string name="anonymous_learn_more">Learn more</string>
-
-    <!-- Anonymous Statistics - Preview -->
-    <string name="preview_id_title">Unique ID</string>
-    <string name="preview_device_title">Device</string>
-    <string name="preview_version_title">Version</string>
-    <string name="preview_country_title">Country</string>
-    <string name="preview_carrier_title">Carrier</string>
-    <string name="stats_collection_title">Stats collection</string>
-    <string name="stats_collection_summary">Allow installation metrics and device statistics to be collected</string>
 
     <!-- Display : Rotation  -->
     <string name="accelerometer_title">Auto-rotate screen</string>
