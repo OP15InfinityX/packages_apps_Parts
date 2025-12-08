@@ -51,19 +51,6 @@
                 android:value="org.lineageos.lineageparts.PartsUpdater" />
         </activity>
 
-        <activity
-            android:name=".trust.TrustOnBoardingActivity"
-            android:enabled="true"
-            android:excludeFromRecents="true"
-            android:exported="true"
-            android:label="@string/trust_title"
-            android:theme="@style/OnBoardingStyle">
-            <intent-filter android:priority="-4">
-                <action android:name="org.lineageos.lineageparts.TRUST_HINT" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
         <receiver
             android:name=".BootReceiver"
             android:enabled="true"
@@ -148,9 +135,6 @@
             </intent-filter>
 
             <meta-data
-                android:name="com.android.settings.category"
-                android:value="com.android.settings.category.ia.system" />
-            <meta-data
                 android:name="com.android.settings.icon"
                 android:resource="@drawable/ic_settings_buttons" />
             <meta-data
@@ -168,38 +152,6 @@
         </activity-alias>
 
         <activity android:name=".gestures.KeyHandler" /> -->
-
-        <!-- Profiles settings (System category) -->
-        <activity-alias
-            android:name=".profiles.ProfilesSettings"
-            android:exported="true"
-            android:label="@string/profiles_settings_title"
-            android:targetActivity="PartsActivity">
-            <intent-filter>
-                <action android:name="com.android.settings.action.IA_SETTINGS" />
-                <action android:name="org.lineageos.lineageparts.PROFILES_SETTINGS" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-
-            <meta-data
-                android:name="com.android.settings.category"
-                android:value="com.android.settings.category.ia.system" />
-            <meta-data
-                android:name="com.android.settings.icon"
-                android:resource="@drawable/ic_settings_profiles" />
-            <meta-data
-                android:name="com.android.settings.icon_tintable"
-                android:value="true" />
-            <meta-data
-                android:name="com.android.settings.order"
-                android:value="-255" />
-            <meta-data
-                android:name="com.android.settings.profile"
-                android:value="primary_profile_only" />
-            <meta-data
-                android:name="com.android.settings.summary"
-                android:resource="@string/summary_empty" />
-        </activity-alias>
 
         <!-- Rotation settings -->
         <activity-alias
@@ -244,58 +196,6 @@
                 android:resource="@string/summary_empty" />
         </activity-alias> -->
 
-        <!-- Touchscreen gesture settings (Gestures category) -->
-        <activity-alias
-            android:name=".gestures.TouchscreenGestureSettings"
-            android:exported="true"
-            android:label="@string/touchscreen_gesture_settings_title"
-            android:targetActivity="PartsActivity">
-            <intent-filter>
-                <action android:name="com.android.settings.action.IA_SETTINGS" />
-                <action android:name="org.lineageos.lineageparts.TOUCHSCREEN_GESTURE_SETTINGS" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-
-            <meta-data
-                android:name="com.android.settings.category"
-                android:value="com.android.settings.category.ia.gestures" />
-            <meta-data
-                android:name="com.android.settings.order"
-                android:value="-256" />
-            <meta-data
-                android:name="com.android.settings.profile"
-                android:value="primary_profile_only" />
-            <meta-data
-                android:name="com.android.settings.summary"
-                android:resource="@string/touchscreen_gesture_settings_summary" />
-        </activity-alias>
-
-        <!-- Trust interface (Privacy category) -->
-        <activity-alias
-            android:name=".trust.TrustPreferences"
-            android:exported="true"
-            android:label="@string/trust_title"
-            android:targetActivity="PartsActivity">
-            <intent-filter>
-                <action android:name="com.android.settings.action.IA_SETTINGS" />
-                <action android:name="org.lineageos.lineageparts.TRUST_INTERFACE" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-
-            <meta-data
-                android:name="com.android.settings.category"
-                android:value="com.android.settings.category.ia.privacy" />
-            <meta-data
-                android:name="com.android.settings.order"
-                android:value="-256" />
-            <meta-data
-                android:name="com.android.settings.profile"
-                android:value="primary_profile_only" />
-            <meta-data
-                android:name="com.android.settings.summary"
-                android:resource="@string/trust_summary" />
-        </activity-alias>
-
         <!-- Contributors Cloud (MyDeviceInfo category)
         <activity-alias
             android:name=".contributors.ContributorsCloudFragment"
@@ -325,27 +225,31 @@
                 android:resource="@string/summary_empty" />
         </activity-alias> -->
 
-        <!-- Anonymous Statistics -->
-        <receiver
-            android:name=".lineagestats.ReportingServiceManager"
-            android:enabled="true"
-            android:exported="false"
-            android:label="ReportingServiceManager">
+        <!-- Touchscreen gesture settings (Gestures category) -->
+        <activity-alias
+            android:name=".gestures.TouchscreenGestureSettings"
+            android:exported="true"
+            android:label="@string/touchscreen_gesture_settings_title"
+            android:targetActivity="PartsActivity">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="org.lineageos.lineageparts.action.TRIGGER_REPORT_METRICS" />
+                <action android:name="com.android.settings.action.IA_SETTINGS" />
+                <action android:name="org.lineageos.lineageparts.TOUCHSCREEN_GESTURE_SETTINGS" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-        </receiver>
 
-        <service
-            android:name=".lineagestats.ReportingService"
-            android:enabled="true"
-            android:exported="false"
-            android:label="ReportingService" />
-
-        <service
-            android:name=".lineagestats.StatsUploadJobService"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
+            <meta-data
+                android:name="com.android.settings.category"
+                android:value="com.android.settings.category.ia.gestures" />
+            <meta-data
+                android:name="com.android.settings.order"
+                android:value="-256" />
+            <meta-data
+                android:name="com.android.settings.profile"
+                android:value="primary_profile_only" />
+            <meta-data
+                android:name="com.android.settings.summary"
+                android:resource="@string/touchscreen_gesture_settings_summary" />
+        </activity-alias>
 
         <activity
             android:name=".profiles.NFCProfile"
@@ -361,29 +265,6 @@
             android:name=".profiles.NFCProfileSelect"
             android:excludeFromRecents="true"
             android:label="@string/profile_select" />
-
-        <activity
-            android:name=".logo.PlatLogoActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:exported="true"
-            android:theme="@style/EggStyle">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".egg.octo.Ocquarium"
-            android:exported="true"
-            android:label="@string/egg_title"
-            android:theme="@style/EggStyle">
-            <intent-filter>
-                <action android:name="org.lineageos.lineageparts.EASTER_EGG" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="com.android.internal.category.PLATLOGO" />
-            </intent-filter>
-        </activity>
 
     </application>
 </manifest>
