@@ -433,11 +433,16 @@ public class ButtonSettings extends SettingsPreferenceFragment
         }
 
         mSwapCapacitiveKeys = findPreference(KEY_SWAP_CAPACITIVE_KEYS);
-        if (mSwapCapacitiveKeys != null && !isKeySwapperSupported(getActivity())) {
-            prefScreen.removePreference(mSwapCapacitiveKeys);
-        } else {
-            mSwapCapacitiveKeys.setOnPreferenceChangeListener(this);
-            mSwapCapacitiveKeys.setDependency(KEY_DISABLE_NAV_KEYS);
+        if (mSwapCapacitiveKeys != null) {
+            if (!isKeySwapperSupported(getActivity())) {
+                prefScreen.removePreference(mSwapCapacitiveKeys);
+            } else {
+                boolean isSwapped = Settings.System.getInt(resolver,
+                        KEY_SWAP_CAPACITIVE_KEYS, 0) == 1;
+                mSwapCapacitiveKeys.setChecked(isSwapped);
+                mSwapCapacitiveKeys.setOnPreferenceChangeListener(this);
+                mSwapCapacitiveKeys.setDependency(KEY_DISABLE_NAV_KEYS);
+            }
         }
 
         mEnableTaskbar = findPreference(KEY_ENABLE_TASKBAR);
@@ -631,7 +636,10 @@ public class ButtonSettings extends SettingsPreferenceFragment
                     LineageSettings.System.KEY_EDGE_LONG_SWIPE_ACTION);
             return true;
         } else if (preference == mSwapCapacitiveKeys) {
-            mHardware.set(LineageHardwareManager.FEATURE_KEY_SWAP, (Boolean) newValue);
+            boolean value = (Boolean) newValue;
+            Settings.System.putInt(requireActivity().getContentResolver(),
+                    KEY_SWAP_CAPACITIVE_KEYS, value ? 1 : 0);
+            mHardware.set(LineageHardwareManager.FEATURE_KEY_SWAP, value);
             return true;
         } else if (preference == mEnableTaskbar) {
             LineageSettings.System.putInt(getContentResolver(),
@@ -774,12 +782,11 @@ public class ButtonSettings extends SettingsPreferenceFragment
         if (!isKeySwapperSupported(context)) {
             return;
         }
+        boolean enabled = Settings.System.getInt(context.getContentResolver(),
+                KEY_SWAP_CAPACITIVE_KEYS, 0) != 0;
 
-        final SharedPreferences preferences =
-                PreferenceManager.getDefaultSharedPreferences(context);
         final LineageHardwareManager hardware = LineageHardwareManager.getInstance(context);
-        hardware.set(LineageHardwareManager.FEATURE_KEY_SWAP,
-                preferences.getBoolean(KEY_SWAP_CAPACITIVE_KEYS, false));
+        hardware.set(LineageHardwareManager.FEATURE_KEY_SWAP, enabled);
     }
 
     @Override
