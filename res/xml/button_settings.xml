@@ -18,7 +18,7 @@
         android:summary="@string/disable_navkeys_summary"
         android:defaultValue="false" />
 
-    <SwitchPreferenceCompat
+    <lineageos.preference.LineageSystemSettingSwitchPreference
         android:key="swap_capacitive_keys"
         android:title="@string/swap_capacitive_keys_title"
         android:summary="@string/swap_capacitive_keys_summary"
