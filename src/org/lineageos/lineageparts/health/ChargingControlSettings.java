@@ -11,7 +11,11 @@ import static lineageos.health.HealthInterface.MODE_MANUAL;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.RemoteException;
+import android.os.ServiceManager;
+import android.provider.Settings;
 import android.util.ArraySet;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,6 +23,9 @@ import android.view.MenuItem;
 
 import androidx.preference.Preference;
 import androidx.preference.PreferenceScreen;
+import androidx.preference.SwitchPreferenceCompat;
+
+import com.android.internal.app.IGameSpaceService;
 
 import lineageos.health.HealthInterface;
 import lineageos.preference.LineageSystemSettingListPreference;
@@ -45,12 +52,18 @@ public class ChargingControlSettings extends SettingsPreferenceFragment implemen
     private static final String CHARGING_CONTROL_START_TIME_PREF = "charging_control_start_time";
     private static final String CHARGING_CONTROL_TARGET_TIME_PREF = "charging_control_target_time";
     private static final String CHARGING_CONTROL_LIMIT_PREF = "charging_control_charging_limit";
+    private static final String BYPASS_CHARGING_PREF = "bypass_charging";
+    private static final String BYPASS_CHARGE_ACTIVE = "bypass_charge_active";
+    private static final String BYPASS_SAVED_ENABLED = "bypass_charge_saved_enabled";
+    private static final String BYPASS_SAVED_MODE = "bypass_charge_saved_mode";
+    private static final String BYPASS_SAVED_LIMIT = "bypass_charge_saved_limit";
 
     private LineageSystemSettingMainSwitchPreference mChargingControlEnabledPref;
     private LineageSystemSettingListPreference mChargingControlModePref;
     private StartTimePreference mChargingControlStartTimePref;
     private TargetTimePreference mChargingControlTargetTimePref;
     private ChargingLimitPreference mChargingControlLimitPref;
+    private SwitchPreferenceCompat mBypassChargingPref;
 
     private HealthInterface mHealthInterface;
 
@@ -76,7 +89,8 @@ public class ChargingControlSettings extends SettingsPreferenceFragment implemen
         mChargingControlStartTimePref = prefSet.findPreference(CHARGING_CONTROL_START_TIME_PREF);
         mChargingControlTargetTimePref = prefSet.findPreference(CHARGING_CONTROL_TARGET_TIME_PREF);
         mChargingControlLimitPref = prefSet.findPreference(CHARGING_CONTROL_LIMIT_PREF);
-
+        mBypassChargingPref = prefSet.findPreference(BYPASS_CHARGING_PREF);
+        mBypassChargingPref.setOnPreferenceChangeListener(this);
         if (mChargingControlLimitPref != null) {
             if (mHealthInterface.allowFineGrainedSettings()) {
                 mChargingControlModePref.setEntries(concatStringArrays(
@@ -95,6 +109,7 @@ public class ChargingControlSettings extends SettingsPreferenceFragment implemen
         refreshValues();
 
         watch(LineageSettings.System.getUriFor(LineageSettings.System.CHARGING_CONTROL_ENABLED));
+        watch(Settings.Global.getUriFor(BYPASS_CHARGE_ACTIVE));
     }
 
     @Override
@@ -104,34 +119,53 @@ public class ChargingControlSettings extends SettingsPreferenceFragment implemen
     }
 
     private void refreshValues() {
+        final boolean bypassActive = isBypassChargingActive();
+        final int chargingControlMode = bypassActive
+                ? getSavedChargingControlMode() : mHealthInterface.getMode();
+
         if (mChargingControlEnabledPref != null) {
-            mChargingControlEnabledPref.setChecked(mHealthInterface.getEnabled());
+            mChargingControlEnabledPref.setChecked(bypassActive
+                    ? getSavedChargingControlEnabled() : mHealthInterface.getEnabled());
+            mChargingControlEnabledPref.setEnabled(!bypassActive);
+            mChargingControlEnabledPref.setTitle(R.string.charging_control_enable_title);
+            mChargingControlEnabledPref.setSummary((CharSequence) null);
+        }
+
+        if (mBypassChargingPref != null) {
+            mBypassChargingPref.setChecked(bypassActive);
+            mBypassChargingPref.setSummary(bypassActive
+                    ? R.string.bypass_charging_active_summary
+                    : R.string.bypass_charging_summary);
         }
 
         if (mChargingControlModePref != null) {
-            final int chargingControlMode = mHealthInterface.getMode();
             mChargingControlModePref.setValue(Integer.toString(chargingControlMode));
-            refreshUi();
+            mChargingControlModePref.setEnabled(!bypassActive);
+            refreshUi(chargingControlMode);
         }
 
         if (mChargingControlStartTimePref != null) {
             mChargingControlStartTimePref.setValue(
                     mChargingControlStartTimePref.getTimeSetting());
+            mChargingControlStartTimePref.setEnabled(!bypassActive);
         }
 
         if (mChargingControlTargetTimePref != null) {
             mChargingControlTargetTimePref.setValue(
                     mChargingControlTargetTimePref.getTimeSetting());
+            mChargingControlTargetTimePref.setEnabled(!bypassActive);
         }
 
         if (mChargingControlLimitPref != null) {
-            mChargingControlLimitPref.setValue(
-                    mChargingControlLimitPref.getSetting());
+            mChargingControlLimitPref.setValue(bypassActive
+                    ? getSavedChargingControlLimit() : mChargingControlLimitPref.getSetting());
+            mChargingControlLimitPref.setEnabled(!bypassActive);
         }
     }
 
     private void refreshUi() {
-        final int chargingControlMode = mHealthInterface.getMode();
+        final int chargingControlMode = isBypassChargingActive()
+                ? getSavedChargingControlMode() : mHealthInterface.getMode();
 
         refreshUi(chargingControlMode);
     }
@@ -174,12 +208,54 @@ public class ChargingControlSettings extends SettingsPreferenceFragment implemen
         if (mChargingControlLimitPref != null) {
             mChargingControlLimitPref.setVisible(isChargingControlLimitPrefVisible);
         }
+
+        requireActivity().invalidateOptionsMenu();
+    }
+
+    private boolean isBypassChargingActive() {
+        return Settings.Global.getInt(requireContext().getContentResolver(),
+                BYPASS_CHARGE_ACTIVE, 0) == 1;
+    }
+
+    private boolean getSavedChargingControlEnabled() {
+        return Settings.Global.getInt(requireContext().getContentResolver(),
+                BYPASS_SAVED_ENABLED, 0) == 1;
+    }
+
+    private int getSavedChargingControlMode() {
+        return Settings.Global.getInt(requireContext().getContentResolver(),
+                BYPASS_SAVED_MODE, MODE_LIMIT);
+    }
+
+    private int getSavedChargingControlLimit() {
+        return Settings.Global.getInt(requireContext().getContentResolver(),
+                BYPASS_SAVED_LIMIT, 100);
+    }
+
+    private void setBypassCharging(final boolean enabled) {
+        IGameSpaceService service = IGameSpaceService.Stub.asInterface(
+                ServiceManager.getService("game_space"));
+        if (service == null) {
+            return;
+        }
+        try {
+            service.setBypassCharge(enabled);
+            refreshValues();
+        } catch (RemoteException ignored) {
+        }
+    }
+
+    @Override
+    public void onSettingsChanged(Uri contentUri) {
+        super.onSettingsChanged(contentUri);
+        refreshValues();
     }
 
     @Override
     public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
         menu.add(0, MENU_RESET, 0, R.string.reset)
                 .setIcon(R.drawable.ic_settings_backup_restore)
+                .setEnabled(!isBypassChargingActive())
                 .setAlphabeticShortcut('r')
                 .setShowAsActionFlags(
                         MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
@@ -196,6 +272,13 @@ public class ChargingControlSettings extends SettingsPreferenceFragment implemen
 
     @Override
     public boolean onPreferenceChange(final Preference preference, final Object objValue) {
+        if (preference == mBypassChargingPref) {
+            setBypassCharging((Boolean) objValue);
+            return false;
+        }
+        if (isBypassChargingActive()) {
+            return false;
+        }
         if (preference == mChargingControlEnabledPref) {
             mHealthInterface.setEnabled((Boolean) objValue);
         } else if (preference == mChargingControlModePref) {
@@ -207,6 +290,9 @@ public class ChargingControlSettings extends SettingsPreferenceFragment implemen
     }
 
     private void resetToDefaults() {
+        if (isBypassChargingActive()) {
+            return;
+        }
         mHealthInterface.reset();
 
         refreshValues();
@@ -218,6 +304,9 @@ public class ChargingControlSettings extends SettingsPreferenceFragment implemen
     }
 
     public static final SummaryProvider SUMMARY_PROVIDER = (context, key) -> {
+        if (Settings.Global.getInt(context.getContentResolver(), BYPASS_CHARGE_ACTIVE, 0) == 1) {
+            return context.getString(R.string.bypass_charging_active);
+        }
         if (HealthInterface.isChargingControlSupported(context)) {
             HealthInterface healthInterface = HealthInterface.getInstance(context);
             if (healthInterface.getEnabled()) {

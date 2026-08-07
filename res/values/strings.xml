@@ -71,6 +71,10 @@
     <!-- Charging control settings -->
     <string name="charging_control_title">Charging control</string>
     <string name="charging_control_enable_title">Enable charging control</string>
+    <string name="bypass_charging_title">Enable bypass charging</string>
+    <string name="bypass_charging_summary">Power the device directly from the charger without charging the battery</string>
+    <string name="bypass_charging_active">Bypass charging active</string>
+    <string name="bypass_charging_active_summary">Battery charging is paused until bypass charging is turned off or power is disconnected</string>
     <string name="charging_control_mode_title">Charging mode</string>
     <string name="charging_control_mode_auto_title">Automatic schedule</string>
     <string name="charging_control_mode_auto_summary">Automatically determine when to start charging based on alarms set</string>
