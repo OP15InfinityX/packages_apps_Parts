@@ -24,6 +24,8 @@ import org.lineageos.lineageparts.R;
 public class ChargingLimitPreference extends SliderPreference
         implements Slider.OnSliderTouchListener {
     private static final String TAG = ChargingLimitPreference.class.getSimpleName();
+    private static final int MIN_CHARGING_LIMIT = 70;
+    private static final int MAX_CHARGING_LIMIT = 100;
 
     private Slider mSlider;
 
@@ -49,10 +51,10 @@ public class ChargingLimitPreference extends SliderPreference
         mSlider.setLabelBehavior(LabelFormatter.LABEL_FLOATING);
         mSlider.setStepSize(1);
         mSlider.setTickVisible(false);
-        mSlider.setValueFrom(70);
-        mSlider.setValueTo(100);
+        mSlider.setValueFrom(MIN_CHARGING_LIMIT);
+        mSlider.setValueTo(MAX_CHARGING_LIMIT);
 
-        int currLimit = getSetting();
+        int currLimit = clampToSliderRange(getSetting());
         mSlider.setValue(currLimit);
         updateValue(currLimit);
     }
@@ -70,10 +72,11 @@ public class ChargingLimitPreference extends SliderPreference
     }
 
     public void setValue(final int value) {
+        final int clampedValue = clampToSliderRange(value);
         if (mSlider != null) {
-            mSlider.setValue(value);
+            mSlider.setValue(clampedValue);
         }
-        updateValue(value);
+        updateValue(clampedValue);
     }
 
     protected int getSetting() {
@@ -82,6 +85,10 @@ public class ChargingLimitPreference extends SliderPreference
 
     protected void setSetting(final int chargingLimit) {
         mHealthInterface.setLimit(chargingLimit);
+    }
+
+    private int clampToSliderRange(final int value) {
+        return Math.max(MIN_CHARGING_LIMIT, Math.min(MAX_CHARGING_LIMIT, value));
     }
 
     private void updateValue(final int value) {
